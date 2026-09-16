@@ -10,7 +10,7 @@ session-prune.py — 把「同名的舊 session 對話檔」移到垃圾桶，�
   - 「同名」＝ .jsonl 內最後一筆 customTitle 與本窗的相同（本窗名字讀 --name，預設從
     ~/.claude/sessions/<pid>.json 依 CLAUDE_CODE_SESSION_ID 取 name）。
   - 絕不動：本窗自己（CLAUDE_CODE_SESSION_ID）、任何活窗（~/.claude/sessions/*.json 的 sessionId）。
-  - 移到 ~/.Trash/claude-sessions-<YYYY-MM-DD>/（.jsonl ＋ 同名子夾一起），可救回。
+  - 移到 ~/.Trash/claude-sessions-<YYYY-MM-DD>/（沒有 ~/.Trash 的系統改 ~/.claude/trash/），.jsonl ＋ 同名子夾一起，可救回。
   - 預設 dry-run 只列清單；加 --apply 才真的移。
   - 交接單 handoffs/*.yaml 與 .bindings 一律不碰。
 
@@ -185,7 +185,9 @@ def main() -> int:
     if not a.apply:
         print("（dry-run，加 --apply 才會移到垃圾桶）")
         return 0
-    trash = os.path.join(HOME, ".Trash", "claude-sessions-" + dt.date.today().isoformat())
+    # macOS 有 ~/.Trash；Windows／Linux 沒有就退到 ~/.claude/trash/（一樣可救回）
+    base = os.path.join(HOME, ".Trash") if os.path.isdir(os.path.join(HOME, ".Trash")) else os.path.join(CLAUDE, "trash")
+    trash = os.path.join(base, "claude-sessions-" + dt.date.today().isoformat())
     moved = move(project_dir, targets, trash)
     print(f"已移 {len(moved)} 項到 {trash}")
     return 0

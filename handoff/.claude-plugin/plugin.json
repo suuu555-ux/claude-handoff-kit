@@ -1,9 +1,0 @@
-{
-  "name": "handoff",
-  "version": "1.0.0",
-  "description": "收工交接循環：/handoff:last-word 收工寫交接單、/handoff:pickup 新對話接手；/handoff:setup 接上 40% 容量提醒的狀態列。",
-  "author": {
-    "name": "su"
-  },
-  "keywords": ["handoff", "last-word", "pickup", "statusline", "context"]
-}

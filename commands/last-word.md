@@ -1,10 +1,10 @@
 ---
 description: 收工儀式 — 回顧這段對話、把殘餘工作寫進交接單、檢查未 commit，最後確認可以 /clear
-argument-hint: "[可選：這段工作的主題名，如 login-page；省略則沿用 /handoff:pickup 綁定的名字]"
+argument-hint: "[可選：這段工作的主題名，如 login-page；省略則沿用 /pickup 綁定的名字]"
 allowed-tools: "Bash(git *) Bash(python3 *) Read Write Edit Glob Grep AskUserQuestion"
 ---
 
-你正在執行 `/handoff:last-word`，這是 `/clear` 之前的收工儀式。目標：把這段對話的價值存到對的地方，讓下一個對話能無痛接手，同時不讓 CLAUDE.md 無限膨脹。
+你正在執行 `/last-word`，這是 `/clear` 之前的收工儀式。目標：把這段對話的價值存到對的地方，讓下一個對話能無痛接手，同時不讓 CLAUDE.md 無限膨脹。
 
 這段工作的主題名（使用者提供，可能為空）：$ARGUMENTS
 
@@ -45,8 +45,8 @@ allowed-tools: "Bash(git *) Bash(python3 *) Read Write Edit Glob Grep AskUserQue
 **算路徑：**
 1. 專案鑰匙：把當前 cwd 絕對路徑的 `/` 全換成 `-`，當 `<cwd-slug>`（例：`/Users/amy/shop-site` → `-Users-amy-shop-site`）。不同專案因此不會互蓋。
 2. 主題名（＝檔名）：依序解析，第一個命中就用——
-   - 有 `$ARGUMENTS` → 字面照用，並同步綁定：`python3 ${CLAUDE_PLUGIN_ROOT}/scripts/handoff-scope.py bind <主題名>`
-   - 沒有 → 讀綁定：`python3 ${CLAUDE_PLUGIN_ROOT}/scripts/handoff-scope.py read`，印出非空就用
+   - 有 `$ARGUMENTS` → 字面照用，並同步綁定：`python3 ~/.claude/scripts/handoff/handoff-scope.py bind <主題名>`
+   - 沒有 → 讀綁定：`python3 ~/.claude/scripts/handoff/handoff-scope.py read`，印出非空就用
    - 還是空 → 用 AskUserQuestion 問一個主題名（預設 `main`），選定後立刻 `bind`
 3. 最終路徑：`~/.claude/handoffs/<cwd-slug>/<主題名>.yaml`（Write 會自動建父目錄）
 
@@ -77,7 +77,7 @@ python3 -c "import yaml,sys; yaml.safe_load(open(sys.argv[1]))" <交接單路徑
 （沒裝 yaml 模組就用 `python3 -c "import json"` 跳過，並在回報說明未驗。）
 
 寫完只回報一行續接指引：
-> 下段續接：新對話跑 `/handoff:pickup <主題名>`。
+> 下段續接：新對話跑 `/pickup <主題名>`。
 
 ## Step 3 — 檢查未 commit 的改動
 
@@ -91,7 +91,7 @@ python3 -c "import yaml,sys; yaml.safe_load(open(sys.argv[1]))" <交接單路徑
 每次 `/clear` 都會新開一支對話檔並沿用顯示名，舊檔留在 `/resume` 清單裡變成同名殘影。跑：
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session-prune.py
+python3 ~/.claude/scripts/handoff/session-prune.py
 ```
 
 有列出東西就加 `--apply` 真的移（移到 `~/.Trash/claude-sessions-<日期>/`，可救回）。自動排除本窗與所有活窗；0 筆就一句帶過。

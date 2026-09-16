@@ -1,14 +1,17 @@
 #!/bin/bash
 # handoff plugin 狀態列：模型 · 專案 · context 用量五格量表 · git 分支
-# 用量跨過 THRESHOLD（預設 40%）時跳一次 macOS 通知，提醒跑 /handoff:last-word 收工再 /clear。
+# 用量跨過 THRESHOLD（預設 40%）時跳一次 macOS 通知，提醒跑 /last-word 收工再 /clear。
 # 只在「由低往上跨線」那一刻通知（每個 session 一次；壓縮後降回再升會再通知，是刻意的）。
-# 依賴：bash、python3（macOS 內建）。不需要 jq。
+# 依賴：bash、python3 或 python（Windows 走 Git Bash；通知用 PowerShell toast）。不需要 jq。
 
 THRESHOLD="${HANDOFF_THRESHOLD:-40}"
 input=$(cat)
 
+# 找 python：macOS/Linux 通常是 python3，Windows 通常只有 python
+PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
+
 # 用 python3 解析 Claude Code 餵進來的 JSON（一次取四個欄位）
-read -r pct model dir sid < <(printf '%s' "$input" | python3 -c '
+read -r pct model dir sid < <(printf '%s' "$input" | "$PY" -c '
 import json, sys
 try:
     d = json.load(sys.stdin)
@@ -47,8 +50,18 @@ state="$markdir/$(printf '%s' "$sid" | tr -cd 'A-Za-z0-9_-')"
 prev=0; [ -f "$state" ] && prev=$(cat "$state" 2>/dev/null)
 prev=${prev%.*}; [ -z "$prev" ] && prev=0
 if [ "$pct" -ge "$THRESHOLD" ] && [ "$prev" -lt "$THRESHOLD" ]; then
-  if command -v osascript >/dev/null 2>&1; then
-    osascript -e "display notification \"對話容量已用 ${pct}%，先跑 /handoff:last-word 收工再 /clear\" with title \"該收工了\" sound name \"Glass\"" >/dev/null 2>&1 &
+  msg="對話容量已用 ${pct}%，先跑 /last-word 收工再 /clear"
+  if command -v osascript >/dev/null 2>&1; then                      # macOS
+    osascript -e "display notification \"$msg\" with title \"該收工了\" sound name \"Glass\"" >/dev/null 2>&1 &
+  elif command -v powershell.exe >/dev/null 2>&1; then               # Windows（Git Bash／WSL）
+    powershell.exe -NoProfile -Command "
+      [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+      \$x = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)
+      \$t = \$x.GetElementsByTagName('text'); \$t.Item(0).AppendChild(\$x.CreateTextNode('該收工了')) | Out-Null; \$t.Item(1).AppendChild(\$x.CreateTextNode('$msg')) | Out-Null
+      [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Claude Code').Show([Windows.UI.Notifications.ToastNotification]::new(\$x))
+    " >/dev/null 2>&1 &
+  elif command -v notify-send >/dev/null 2>&1; then                  # Linux
+    notify-send "該收工了" "$msg" >/dev/null 2>&1 &
   fi
 fi
 printf '%s' "$pct" > "$state"

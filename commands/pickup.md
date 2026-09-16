@@ -4,7 +4,7 @@ argument-hint: "[可選：主題名，如 login-page；省略則列出所有交�
 allowed-tools: "Read Glob Bash(python3 *) AskUserQuestion"
 ---
 
-你正在執行 `/handoff:pickup`，從交接單接續上一段工作。這是 `/handoff:last-word` 的另一半：上一段收工時把狀態寫進交接單，這裡把它載回來。
+你正在執行 `/pickup`，從交接單接續上一段工作。這是 `/last-word` 的另一半：上一段收工時把狀態寫進交接單，這裡把它載回來。
 
 要接的主題名（使用者提供，可能為空）：$ARGUMENTS
 
@@ -24,8 +24,8 @@ allowed-tools: "Read Glob Bash(python3 *) AskUserQuestion"
     - 多個 → 只把含關鍵字的丟 AskUserQuestion 讓使用者挑
     - 0 個 → 說明沒有這個主題，列出目錄下所有主題讓使用者選；若使用者要接的是沒收過工的舊對話，提示改用原生 `/resume`
 - **沒給** → 一律列出所有交接單讓使用者選，不自動靜默接：
-  1. Glob `<目錄>/*.yaml`。0 個 → 告訴使用者「這個專案還沒有交接單，可能是新專案、或還沒用 `/handoff:last-word` 收過工」，停在這，不要亂猜別的專案。
-  2. 讀推薦主題：`python3 ${CLAUDE_PLUGIN_ROOT}/scripts/handoff-scope.py read`
+  1. Glob `<目錄>/*.yaml`。0 個 → 告訴使用者「這個專案還沒有交接單，可能是新專案、或還沒用 `/last-word` 收過工」，停在這，不要亂猜別的專案。
+  2. 讀推薦主題：`python3 ~/.claude/scripts/handoff/handoff-scope.py read`
   3. 用 AskUserQuestion 列出所有主題（即使只有 1 個也列）：推薦主題排第一並標「目前對話綁定（推薦）」，其餘照 yaml 的 `updated` 日期新到舊。
 
 ## Step 3 — 把交接單講白話
@@ -46,13 +46,13 @@ allowed-tools: "Read Glob Bash(python3 *) AskUserQuestion"
 把 `X` 換成實際載入的主題名：
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/handoff-scope.py bind X
+python3 ~/.claude/scripts/handoff/handoff-scope.py bind X
 ```
 
-這讓收工時 `/handoff:last-word` 不帶參數也會存回同一份交接單。接著順手清 `/resume` 同名殘影：
+這讓收工時 `/last-word` 不帶參數也會存回同一份交接單。接著順手清 `/resume` 同名殘影：
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session-prune.py --apply
+python3 ~/.claude/scripts/handoff/session-prune.py --apply
 ```
 
-回報「✅ 已綁定 `X`，收工打 `/handoff:last-word` 免帶參數」＋殘影清了幾筆，然後直接從 `next_action` 接起第一個動作。動工前若涉及不可逆動作，先確認。
+回報「✅ 已綁定 `X`，收工打 `/last-word` 免帶參數」＋殘影清了幾筆，然後直接從 `next_action` 接起第一個動作。動工前若涉及不可逆動作，先確認。
