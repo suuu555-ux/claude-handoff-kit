@@ -23,7 +23,7 @@
 
 ```
 請幫我安裝 handoff 這個 Claude Code plugin，照順序做：
-1. 執行 /plugin marketplace add <你的GitHub帳號>/claude-handoff-kit
+1. 執行 /plugin marketplace add suuu555-ux/claude-handoff-kit
 2. 執行 /plugin install handoff@su-kit
 3. 執行 /handoff:setup 把狀態列接上（它會備份我的 settings.json 再改）
 4. 做完後，用三句話告訴我：以後收工要打什麼、開新對話要打什麼、看到什麼通知代表該收工。

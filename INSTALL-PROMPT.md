@@ -5,7 +5,7 @@
 ```
 請幫我安裝 handoff 這個 Claude Code plugin，照順序做，每步做完回報結果再做下一步：
 
-1. 執行 /plugin marketplace add <你的GitHub帳號>/claude-handoff-kit
+1. 執行 /plugin marketplace add suuu555-ux/claude-handoff-kit
 2. 執行 /plugin install handoff@su-kit
 3. 執行 /handoff:setup，把 40% 容量提醒的狀態列接上我的設定（它會先備份 ~/.claude/settings.json 再改；如果我已經有別的狀態列，先問我再換）
 4. 全部做完後，用三句白話告訴我：
