@@ -15,7 +15,7 @@
 - 之後 `/clear` 或關掉，都沒關係。
 - 下次打 `/pickup`：Claude 讀那張便條，用三五行講給你聽，然後直接從「下一步」接著做。
 
-另外一條**狀態列**顯示在終端機最底下：`Claude · 專案名 · ▮▮▯▯▯ 41%`。那個百分比是這個對話的容量用了多少。跨過 40% 時會跳一次 macOS 通知叫你收工，因為超過之後 Claude 的品質會開始掉，等它自動壓縮就來不及了。
+另外一條**狀態列**顯示在終端機最底下：`Claude · 專案名 · ▮▮▯▯▯ 41%`。那個百分比是這個對話的容量用了多少。跨過 40% 時會跳一次系統通知叫你收工（macOS 通知中心、Windows toast、Linux notify-send），因為超過之後 Claude 的品質會開始掉，等它自動壓縮就來不及了。
 
 ## 安裝
 
@@ -61,6 +61,6 @@ curl -fsSL https://raw.githubusercontent.com/suuu555-ux/claude-handoff-kit/main/
 
 ## 想改的地方
 
-- 通知門檻：環境變數 `HANDOFF_THRESHOLD`（預設 40），例如在 `~/.zshenv` 加 `export HANDOFF_THRESHOLD=50`。
+- 通知門檻：環境變數 `HANDOFF_THRESHOLD`（預設 40），例如加一行 `export HANDOFF_THRESHOLD=50`——macOS 放 `~/.zshenv`，Windows（Git Bash）與 Linux 放 `~/.bashrc`。
 - 便條格式：見 `commands/last-word.md` 裡的 yaml 範本。
 - 之後有新版：再跑一次安裝那行就會覆蓋更新。
